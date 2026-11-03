@@ -18,7 +18,7 @@ from the 3 raw phone clips and 10 photos of finished hand-painted mirrors.
 
 Transitions: mirror-shine glint sweeps, painterly brush-stroke wipes (pink / butter / mint) and zoom punches.
 Grade: lifted pastel blacks, warm pink highlights, soft bloom, pink vignette, light leaks, fine grain.
-Captions follow the voice-over word by word (Gaegu handwriting, keywords in yellow; big moments in Fraunces / Fredoka).
+Captions follow the voice-over in the reference-2 style: lowercase white Inter Display SemiBold, tight tracking, soft shadow, no outline, 2-4 word chunks.
 
 Audio: the original voice-over plus an **original** synthesized kalimba + ukulele-pluck track
 (F – Dm – B♭ – C, 100 BPM). The music ducks under the voice. Cute SFX (pops, sparkles, brush swish,
@@ -33,7 +33,7 @@ shutter, boing, ding) are generated in code. The final mix is loudness-normalise
 - `audio.py`: music, SFX and voice-over mix
 - `mux.py`: two-pass loudnorm and mux
 - `transcript.json`: word-level timestamps of the voice-over (faster-whisper large-v3)
-- `fonts/`: Fraunces, Fredoka, Quicksand, Gaegu (all SIL OFL, Google Fonts)
+- `fonts/`: Fraunces, Fredoka, Quicksand, Gaegu, Inter Display (all SIL OFL)
 
 ## Rebuild
 

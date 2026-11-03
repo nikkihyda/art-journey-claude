@@ -15,7 +15,7 @@ import sys
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 import fx
 import stickers as st
@@ -388,52 +388,60 @@ class Captions:
             c["end"] = min(max(c["end"] + 0.25, c["start"] + 0.6), nxt - 0.02, c["end"] + 0.9)
         self.cache = {}
 
-    def word_sprite(self, w, style, kw):
-        key = ("w", w, style, kw)
+    # Subtitle look follows reference 2: lowercase white sans (Inter Display SemiBold), tight tracking,
+    # soft shadow, no outline, the whole 2-4 word chunk appears at once, centred in the lower middle.
+    CAP_SIZE = 66
+    CAP_TRACK = -2.4
+    CAP_MAXW = 900
+
+    def _line(self, text):
+        text = text.replace("'", "\u2019")
+        key = ("l", text)
         if key in self.cache:
             return self.cache[key]
-        if style == "big":
-            spr = T.render(w, T.FRAUNCES(118, 440), st.MINT, stroke=4, stroke_fill=(52, 136, 116), glow=12,
-                           glow_color=(255, 255, 255), glow_strength=0.85, shadow=(0, 6, 8, (30, 40, 60, 150)))
-        elif style == "pink":
-            spr = T.render(w, T.FREDOKA(100, 650), (248, 178, 228), stroke=6, stroke_fill=(206, 84, 168), glow=10,
-                           glow_color=(255, 255, 255), glow_strength=0.85, shadow=(0, 6, 8, (60, 30, 70, 150)))
-        else:
-            fill = st.BUTTER if kw else (255, 255, 255)
-            sf = (236, 84, 150) if kw else (246, 112, 170)
-            spr = T.render(w, T.HAND(94), fill, stroke=7, stroke_fill=sf, shadow=(0, 6, 6, (100, 30, 70, 140)))
-        self.cache[key] = spr
-        return spr
+        f = T.font("InterDisplay-SemiBold.otf", self.CAP_SIZE)
+        asc, desc = f.getmetrics()
+        pad = 26
+        tw = int(f.getlength(text) + self.CAP_TRACK * max(0, len(text) - 1)) + 2
+        Wd, Hd = tw + pad * 2, asc + desc + pad * 2
+        txt = Image.new("RGBA", (Wd, Hd), (0, 0, 0, 0))
+        d = ImageDraw.Draw(txt)
+        for i, ch in enumerate(text):
+            x = pad + f.getlength(text[:i]) + self.CAP_TRACK * i
+            d.text((x, pad), ch, font=f, fill=(255, 255, 255, 255))
+        a = np.asarray(txt.split()[3]).astype(np.float32)
+        soft = cv2.GaussianBlur(cv2.warpAffine(a, np.float32([[1, 0, 0], [0, 1, 3]]), (Wd, Hd)), (0, 0), 7) * 0.55
+        tight = cv2.GaussianBlur(cv2.warpAffine(a, np.float32([[1, 0, 0], [0, 1, 1.5]]), (Wd, Hd)), (0, 0), 1.6) * 0.30
+        sh = np.clip(soft + tight, 0, 255).astype(np.uint8)
+        out = Image.new("RGBA", (Wd, Hd), (20, 14, 18, 0))
+        out.putalpha(Image.fromarray(sh))
+        out = Image.alpha_composite(out, txt)
+        self.cache[key] = out
+        return out
 
-    def sprite(self, ci, k):
-        key = ("c", ci, k)
+    def sprite(self, ci, k=None):
+        key = ("c", ci)
         if key in self.cache:
             return self.cache[key]
         c = self.chunks[ci]
-        sprs = [self.word_sprite(w, c["style"], w in c["kws"]) for w in c["words"]]
-        gap = 10 if c["style"] == "n" else 24
-        maxw = 940
-        lines, cur, cw = [], [], 0
-        for i, s in enumerate(sprs):
-            if cur and cw + gap + s.width > maxw:
-                lines.append(cur)
-                cur, cw = [], 0
-            cur.append(i)
-            cw += (gap if cw else 0) + s.width
-        lines.append(cur)
-        lh = max(s.height for s in sprs)
-        lh_step = int(lh * 0.82)
-        tw = max(sum(sprs[i].width for i in ln) + gap * (len(ln) - 1) for ln in lines)
-        th = lh + lh_step * (len(lines) - 1)
+        words = c["words"]
+        full = " ".join(words)
+        lines = [full]
+        if self._line(full).width - 52 > self.CAP_MAXW and len(words) > 1:
+            best = None
+            for cut in range(1, len(words)):
+                l1, l2 = " ".join(words[:cut]), " ".join(words[cut:])
+                wmax = max(self._line(l1).width, self._line(l2).width)
+                if best is None or wmax < best[0]:
+                    best = (wmax, [l1, l2])
+            lines = best[1]
+        imgs = [self._line(l) for l in lines]
+        step = int(self.CAP_SIZE * 1.12)
+        tw = max(im.width for im in imgs)
+        th = imgs[0].height + step * (len(imgs) - 1)
         canvas = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
-        for li, ln in enumerate(lines):
-            lw = sum(sprs[i].width for i in ln) + gap * (len(ln) - 1)
-            x = (tw - lw) // 2
-            for i in ln:
-                s = sprs[i]
-                if i < k:
-                    canvas.alpha_composite(s, (x, li * lh_step + (lh - s.height)))
-                x += s.width + gap
+        for i, im in enumerate(imgs):
+            canvas.alpha_composite(im, ((tw - im.width) // 2, i * step))
         spr = S(canvas)
         self.cache[key] = spr
         return spr
@@ -441,23 +449,16 @@ class Captions:
     def draw(self, frame, t, seg_name):
         for ci, c in enumerate(self.chunks):
             if c["start"] <= t <= c["end"]:
-                k = sum(1 for tt in c["times"] if tt - 0.04 <= t)
-                k = max(1, k)
-                spr = self.sprite(ci, k)
-                sc = 0.55 + 0.45 * ease_out_back((t - c["start"]) / 0.26, 2.2)
-                # little bump on each new word
-                last = max(tt for tt in c["times"] if tt - 0.04 <= t) if any(tt - 0.04 <= t for tt in c["times"]) else c["start"]
-                sc *= 1 + 0.035 * (1 - clamp01((t - last) / 0.12))
-                a = clamp01((c["end"] - t) / 0.10)
+                spr = self.sprite(ci)
+                a = min(clamp01((t - c["start"]) / 0.07), clamp01((c["end"] - t) / 0.07))
+                dy = 10 * (1 - ease_out_cubic((t - c["start"]) / 0.18))
                 y = CAP_Y.get(seg_name, CAP_Y_DEFAULT)
                 rot = 0.0
                 dx = 0
                 if seg_name == "nervous" and "nervous" in " ".join(c["words"]):
-                    dx = 6 * math.sin(t * 70)
-                    rot = 1.5 * math.sin(t * 53)
-                if c["style"] != "n":
-                    rot += -2.0
-                blit(frame, spr, W / 2 + dx, y, scale=sc, rot=rot, alpha=a)
+                    dx = 4 * math.sin(t * 70)
+                    rot = 1.0 * math.sin(t * 53)
+                blit(frame, spr, W / 2 + dx, y + dy, rot=rot, alpha=a)
 
 
 # --------------------------------------------------------------------------------------------
