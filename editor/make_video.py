@@ -43,7 +43,7 @@ VO_OFF = {1: 0.5}
 VO_OFF[2] = VO_OFF[1] + CLIP_DUR[1]
 VO_OFF[3] = VO_OFF[2] + CLIP_DUR[2]
 VO_END_V3 = 10.45
-TOTAL = 59.5
+TOTAL = 58.4
 
 # --------------------------------------------------------------------------------------------
 # Timeline: visual segments (global seconds)
@@ -75,7 +75,10 @@ SEGS = [
     dict(name="ep2", kind="clip", t0=43.69, t1=46.40, src=3, a=2.69, b=5.40, zoom=(1.0, 1.05)),
     dict(name="rajin", kind="clip", t0=46.40, t1=49.90, src=3, a=5.40, b=9.00, zoom=(1.0, 1.08)),
     dict(name="rajin2", kind="photo", t0=49.90, t1=53.90, photo=8, zoom=(1.12, 1.30), focus=(0.62, 0.52)),
-    dict(name="end", kind="end", t0=53.90, t1=TOTAL),
+    # creative outro (no end card): the opening clip plays in reverse - she walks back towards us with the
+    # blank mirror - then it freezes on the mirror, a mirror glint sweeps, small text asks what it will become.
+    dict(name="outro_rev", kind="clip", t0=53.90, t1=56.50, src=4, a=2.55, b=0.0, zoom=(1.0, 1.0)),
+    dict(name="outro_freeze", kind="clip", t0=56.50, t1=TOTAL, src=4, a=0.0, b=0.0, zoom=(1.0, 1.07), push=-70),
 ]
 
 # transitions at segment boundaries (time -> kind, colour)
@@ -98,7 +101,7 @@ TRANS = {
     43.69: ("glint", None),
     46.40: ("punch", None),
     49.90: ("glint", None),
-    53.90: ("brush", st.BUTTER),
+    53.90: ("glint", None),
 }
 BRUSH_HALF = 0.27
 
@@ -120,7 +123,7 @@ CHUNKS = [
     (1, "my creative journey", 35, 37, "big", []),
     (1, "sebelum tu", 38, 39, "n", []),
     (1, "lupa nak cakap...", 40, 42, "n", ["lupa"]),
-    (2, "i'm vicky", 0, 1, "n", ["vicky"]),
+    (2, "i'm niki", 0, 1, "n", []),
     (2, "and i buat", 2, 4, "n", []),
     (2, "hand-painted mirror", 5, 7, "pink", []),
     (2, "sekarang tengah", 8, 9, "n", []),
@@ -321,7 +324,7 @@ class Assets:
 
         # name tag
         self.t_hi = S(T.render("hi, i'm", T.QUICKSAND(66, 650), st.BUTTER, shadow=(0, 4, 6, (60, 30, 70, 170))))
-        self.t_name = S(T.render("vicky", T.FRAUNCES(200, 430), st.PERI, stroke=4, stroke_fill=st.INDIGO,
+        self.t_name = S(T.render("niki", T.FRAUNCES(200, 430), st.PERI, stroke=4, stroke_fill=st.INDIGO,
                                  glow=18, glow_color=(255, 255, 255), glow_strength=0.8,
                                  shadow=(0, 8, 12, (30, 50, 80, 140))))
         self.t_role = S(T.render("the mirror painter", T.FREDOKA(64, 620), (248, 178, 228), stroke=4,
@@ -459,6 +462,12 @@ class Captions:
         self.cache[key] = out
         return out
 
+    def sprite_text(self, text):
+        key = ("t", text)
+        if key not in self.cache:
+            self.cache[key] = S(self._line(text))
+        return self.cache[key]
+
     def sprite(self, ci, k=None):
         key = ("c", ci)
         if key in self.cache:
@@ -534,7 +543,7 @@ class Renderer:
         for i in range(3):
             cue(15.05 + i * 0.6, "shutter", 0.7)
         cue(19.95, "boing", 0.7)                 # oops
-        cue(21.12, "chime", 0.6)                 # hi i'm vicky
+        cue(21.12, "chime", 0.6)                 # hi i'm niki
         for i in range(4):
             cue(22.37 + i * 0.4825, "pop", 0.55)
         cue(28.0, "boing", 0.5)                  # nervous
@@ -545,10 +554,8 @@ class Renderer:
         cue(40.16, "pop", 0.7); cue(40.3, "ding", 0.7)                            # like
         cue(44.5, "pop", 0.6); cue(44.8, "pop_hi", 0.4); cue(45.0, "pop_hi", 0.4)  # ep 02 ?
         cue(50.9, "pop", 0.6)                    # rajin
-        for t in (54.25, 54.45, 54.65, 55.0, 55.3, 56.0, 56.3):
-            cue(t, "pop", 0.45)
-        cue(54.2, "chime", 0.7)
-        cue(58.7, "chime", 0.6)
+        cue(56.85, "sparkle", 0.7)               # outro mirror glint
+        cue(57.75, "chime", 0.55)                # to be continued
 
     # ---------------- base frames per segment
     def seg_at(self, t):
@@ -568,6 +575,7 @@ class Renderer:
             pe = ease_in_out(p) if s.get("zoom_ease") else p
             z = z0 + (z1 - z0) * pe
             dx = dy = rot = 0.0
+            dx = s.get("push", 0.0) * ease_in_out(p)
             if s.get("shake"):
                 dx = 7 * math.sin(t * 37) + 4 * math.sin(t * 61)
                 dy = 5 * math.sin(t * 43)
@@ -683,8 +691,8 @@ class Renderer:
                 blit(fr, A.brush2, 910, 740, scale=pop(t, 51.15, 0.3), rot=28 + wobble(t, 8, 4))
             if t >= 47.0:
                 fx.glint(fr, clamp01((t - 47.0) / 0.9), strength=0.35)
-        elif name == "end":
-            self.end_overlay(fr, lt, t)
+        elif name in ("outro_rev", "outro_freeze"):
+            self.outro_overlay(fr, t)
 
     def mirror_sparkles(self, fr, t, pts):
         for i, (x, y) in enumerate(pts):
@@ -853,6 +861,24 @@ class Renderer:
                          rot=12 + 10 * math.sin(t * 5 + i))
             blit(fr, A.btn_mint, 140, 300, scale=pop(t, 44.6) * 0.8, rot=wobble(t, 3, 10))
 
+    def outro_overlay(self, fr, t):
+        """Quiet reference-style ending: small white text over the sky, glint on the mirror, fade to black."""
+        q1 = self.cap.sprite_text("jadi apa nanti cermin ni?")
+        q2 = self.cap.sprite_text("to be continued...")
+        if 54.55 <= t < 56.65:
+            a = min(clamp01((t - 54.55) / 0.12), clamp01((56.65 - t) / 0.15))
+            blit(fr, q1, W / 2, 360 + 10 * (1 - ease_out_cubic((t - 54.55) / 0.2)), alpha=a)
+        if t >= 56.85:
+            a = clamp01((t - 56.85) / 0.15)
+            blit(fr, q2, W / 2, 360 + 10 * (1 - ease_out_cubic((t - 56.85) / 0.2)), alpha=a)
+        if t >= 56.6:
+            fx.glint(fr, clamp01((t - 56.6) / 0.9), angle=-24, strength=0.6)
+            for i, (x, y) in enumerate([(560, 640), (700, 1150), (585, 1600)]):
+                ph = (t * 0.9 + i * 0.33) % 1.0
+                blit(fr, self.A.sparkle, x, y, scale=math.sin(math.pi * ph) ** 2 * 0.8, rot=ph * 90)
+        if t > TOTAL - 0.55:
+            fx.flash(fr, clamp01((t - (TOTAL - 0.55)) / 0.5), color=(0, 0, 0))
+
     def end_overlay(self, fr, lt, t):
         A = self.A
         fx.light_leak(fr, t, 0.25, seed=3)
@@ -918,8 +944,8 @@ class Renderer:
     def render_frame(self, fi):
         t = fi / FPS
         _, s = self.seg_at(t)
-        fr = self.base(s, t)
-        fr = np.ascontiguousarray(fr)
+        # always work on a private copy: base() can hand back a cached source frame, and overlays are drawn in place
+        fr = np.array(self.base(s, t), dtype=np.uint8, copy=True, order="C")
         self.punch(fr, t)
         # footage keeps its original (raw) colours: no grade / bloom / vignette / grain / light leaks
         if s.get("blurbg"):
@@ -954,6 +980,8 @@ def main():
     R = Renderer(args)
     json.dump(sorted(CUES), open(args.cues, "w"), indent=0)
     json.dump({"vo_off": VO_OFF, "vo_end_v3": VO_END_V3, "total": TOTAL,
+               # natural sound of the outdoor clip under the outro (reversed with the picture, then held)
+               "ambient": [dict(src_from=2.55, src_to=0.0, at=53.90), dict(src_from=0.3, src_to=2.2, at=56.50)],
                "speech": [(c["start"], c["end"]) for c in R.cap.chunks]}, open(args.cues.replace(".json", "_meta.json"), "w"))
 
     if args.stills:

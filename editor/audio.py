@@ -338,6 +338,8 @@ def main():
     ap.add_argument("--cues", required=True)
     ap.add_argument("--meta", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--music", action="store_true", help="add the synthesized background music (off by default)")
+    ap.add_argument("--ambient-clip", default=None, help="outdoor opening clip; its natural sound goes under the outro")
     args = ap.parse_args()
     meta = json.load(open(args.meta))
     total = meta["total"]
@@ -382,7 +384,30 @@ def main():
             sig = SFX[name]()
             add(sfx, sig, tc, gain=0.33 * g, pan=float(rng.uniform(-0.3, 0.3)))
 
-    mix = vo + mus + sfx
+    if not args.music:
+        mus[:] = 0          # voice-over + sound effects only
+
+    # --- natural ambience of the outdoor clip under the outro (so the ending never drops to digital silence)
+    amb = np.zeros_like(vo)
+    if args.ambient_clip and meta.get("ambient"):
+        src = load_audio(args.ambient_clip)
+        src = src / (np.sqrt(np.mean(src ** 2)) + 1e-9) * 10 ** (-33 / 20)   # quiet natural bed, ~-33 dBFS RMS
+        for piece in meta["ambient"]:
+            a0, a1 = piece["src_from"], piece["src_to"]
+            lo, hi = sorted((a0, a1))
+            seg = src[int(lo * SR):int(hi * SR)].copy()
+            if a0 > a1:
+                seg = seg[::-1]
+            f = int(0.08 * SR)
+            seg[:f] *= np.linspace(0, 1, f)[:, None]
+            seg[-f:] *= np.linspace(1, 0, f)[:, None]
+            s0 = int(piece["at"] * SR)
+            n = min(len(seg), len(amb) - s0)
+            amb[s0:s0 + n] += seg[:n]
+        fo = int(0.5 * SR)
+        amb[N - fo:N] *= np.linspace(1, 0, fo)[:, None]
+        amb[N:] = 0
+    mix = vo + mus + sfx + amb
     mix = mix[:N]
     # soft limiter
     mix = np.tanh(mix * 1.1) / np.tanh(1.1)

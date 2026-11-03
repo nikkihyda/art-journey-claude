@@ -32,9 +32,9 @@ TR="$HERE/transcript.json"
 python3 "$HERE/make_video.py" --frames "$WORK/clips" --photos "$UP" --transcript "$TR" \
   --out "$WORK/video_noaudio.mp4" --cues "$WORK/cues.json"
 
-# 4. music + sfx + voice-over mix
-python3 "$HERE/audio.py" --clips "$V1" "$V2" "$V3" --cues "$WORK/cues.json" --meta "$WORK/cues_meta.json" \
-  --out "$WORK/mix.wav"
+# 4. voice-over + sfx mix (background music is off by default)
+python3 "$HERE/audio.py" --clips "$V1" "$V2" "$V3" --ambient-clip "$V4" --cues "$WORK/cues.json" \
+  --meta "$WORK/cues_meta.json" --out "$WORK/mix.wav"     # add --music for the synthesized background track
 
 # 5. loudness-normalise (-14 LUFS, TikTok/IG friendly) and mux
 python3 "$HERE/mux.py" "$WORK/video_noaudio.mp4" "$WORK/mix.wav" "$WORK/final.mp4"
