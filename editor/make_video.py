@@ -111,7 +111,7 @@ CHUNKS = [
     (1, "my first episode", 3, 5, "n", ["first", "episode"]),
     (1, "hmm, i'm not famous", 6, 9, "n", ["famous"]),
     (1, "but i still nak buat", 10, 14, "n", []),
-    (1, "mirror painting", 15, 17, "big", []),
+    (1, "vlog mirror painting", 15, 17, "big", []),
     (1, "because i think", 18, 20, "n", []),
     (1, "it's time to create", 21, 24, "n", ["create"]),
     (1, "something for my own", 25, 28, "n", ["own"]),
@@ -128,7 +128,7 @@ CHUNKS = [
     (2, "untuk next month punya", 14, 17, "n", ["next", "month"]),
     (2, "agak nervous lah juga", 18, 21, "n", ["nervous"]),
     (2, "sebab banyak", 22, 23, "n", ["banyak"]),
-    (2, "bentuk cermin", 24, 25, "big", []),
+    (2, "banyak cermin", 24, 25, "big", []),
     (2, "untuk next month punya", 26, 29, "n", ["next", "month"]),
     (2, "tapi kita kena", 30, 32, "n", []),
     (2, "siapkan juga!", 33, 34, "pink", []),
@@ -253,9 +253,10 @@ class Assets:
 
         # title (reference-2 style): pink bold tight sans stack, serif label in brackets,
         # small subtitle, dark "ep. 01" tag, cut-out stickers and chrome stars around it
-        TP = (255, 130, 205)
-        shd = [(4, 9, 0.38), (2, 2, 0.22)]
-        self.t2_label = S(T.tracked("[episode 01]", T.font("LiberationSerif-Regular.ttf", 72), TP, -3, shd))
+        TP = (255, 130, 205)      # pink
+        TY = (255, 232, 138)      # soft yellow
+        shd = [(4, 9, 0.42), (2, 2, 0.26)]
+        self.t2_label = S(T.tracked("[episode 01]", T.font("LiberationSerif-Regular.ttf", 72), TY, -3, shd))
         lines = ["first video", "of my", "hand-painted", "mirror"]
         size = 150
         while True:
@@ -264,7 +265,8 @@ class Assets:
             if max(fb.getlength(l) + tr * (len(l) - 1) for l in lines) <= 880 or size <= 90:
                 break
             size -= 4
-        imgs = [T.tracked(l, fb, TP, tr, shd) for l in lines]
+        line_cols = [TP, TY, TP, TY]
+        imgs = [T.tracked(l, fb, c, tr, shd) for l, c in zip(lines, line_cols)]
         star = st.outline_star(int(size * 0.80), TP, width=max(6, size // 15))
         step = int(size * 0.84)
         bw = max(max(im.width for im in imgs), imgs[-1].width - 24 + star.width)
@@ -277,7 +279,7 @@ class Assets:
         fs = T.font("InterDisplay-Bold.otf", 42)
         shd2 = [(3, 6, 0.65), (1, 1.5, 0.45)]
         sub1 = T.tracked("mirror diaries no. 1", fs, TP, -1.4, shd2)
-        sub2 = T.tracked("[a whimsical art journey]", fs, TP, -1.4, shd2)
+        sub2 = T.tracked("[a whimsical art journey]", fs, TY, -1.4, shd2)
         sub = Image.new("RGBA", (max(sub1.width, sub2.width), sub1.height + 46), (0, 0, 0, 0))
         sub.alpha_composite(sub1, ((sub.width - sub1.width) // 2, 0))
         sub.alpha_composite(sub2, ((sub.width - sub2.width) // 2, 46))
@@ -313,8 +315,8 @@ class Assets:
         g[..., 3] = a[:, None]
         self.top_shade = g
         gb = np.zeros((900, W, 4), np.uint8)
-        gb[..., 0], gb[..., 1], gb[..., 2] = 60, 30, 70
-        gb[..., 3] = (np.linspace(0, 1, 900) ** 1.2 * 205).astype(np.uint8)[:, None]
+        gb[..., 0], gb[..., 1], gb[..., 2] = 0, 0, 0
+        gb[..., 3] = (np.linspace(0, 1, 900) ** 1.5 * 120).astype(np.uint8)[:, None]
         self.bottom_shade = gb
 
         # name tag
@@ -337,9 +339,6 @@ class Assets:
         for k in (9, 5, 3, 2):
             bg = fx.cover_np(self.photo[k], 1.25)
             bg = cv2.resize(cv2.GaussianBlur(cv2.resize(bg, (W // 8, H // 8)), (0, 0), 3), (W, H))
-            wash = np.empty_like(bg)
-            wash[:] = (255, 214, 230)
-            bg = cv2.addWeighted(bg, 0.55, wash, 0.45, 0)
             self.port_bg[k] = bg
 
         # polaroids
@@ -756,7 +755,6 @@ class Renderer:
 
     def hello_overlay(self, fr, lt, t):
         A = self.A
-        blit(fr, A.top_shade, W / 2, 0, anchor=(0.5, 0.0), alpha=0.8)
         blit(fr, A.t_hi, 300, 220, scale=pop(lt, 0.05), rot=-6)
         blit(fr, A.t_name, 560, 360 + bob(t, 1, 4), scale=pop(lt, 0.12, 0.36), rot=-4 + wobble(t, 1, 1.2))
         blit(fr, A.bow, 860, 255, scale=pop(lt, 0.3) * 0.9, rot=18 + wobble(t, 2, 5))
@@ -791,7 +789,7 @@ class Renderer:
 
     def shapes_overlay(self, fr, t):
         A = self.A
-        # chunk "bentuk cermin": ~30.24 - 31.7
+        # chunk "banyak cermin": ~30.24 - 31.7
         shapes = [
             (fx.arch_path(170, 270, 150, 260), st.PINK, A.l_shapes[0], 170),
             (fx.ellipse_path(410, 400, 80, 130), st.BUTTER, A.l_shapes[1], 410),
@@ -923,7 +921,7 @@ class Renderer:
         fr = self.base(s, t)
         fr = np.ascontiguousarray(fr)
         self.punch(fr, t)
-        fr = fx.grade(fr, fi, bloom=0.20 if s["kind"] != "end" else 0.0, sat=s["kind"] != "end")
+        # footage keeps its original (raw) colours: no grade / bloom / vignette / grain / light leaks
         if s.get("blurbg"):
             lt = t - s["t0"]
             k = clamp01(lt / 0.3)
@@ -931,12 +929,7 @@ class Renderer:
                 small = cv2.resize(fr, (W // 6, H // 6), interpolation=cv2.INTER_AREA)
                 small = cv2.GaussianBlur(small, (0, 0), 2.5)
                 big = cv2.resize(small, (W, H), interpolation=cv2.INTER_LINEAR)
-                wash = np.empty_like(big)
-                wash[:] = (255, 226, 236)
-                big = cv2.addWeighted(big, 0.72, wash, 0.28, 0)
                 cv2.addWeighted(big, 0.85 * k, fr, 1 - 0.85 * k, 0, dst=fr)
-        if s["kind"] != "end":
-            fx.light_leak(fr, t, 0.14, seed=1)
         self.overlay(fr, s, t)
         self.global_overlay(fr, t, s)
         if s["name"] != "end":
