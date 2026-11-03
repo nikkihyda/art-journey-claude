@@ -14,10 +14,11 @@ mkdir -p "$WORK/clips" "$WORK/audio"
 V1="$UP/0695ee88-copy_8F67E416-F41E-4E4A-B171-747E7064AB85.mov"
 V2="$UP/a7339ae5-copy_D4679EF6-F9B3-4117-A651-14DB10D67DD9.mov"
 V3="$UP/d216cfd9-copy_509DACD7-AB95-4F61-BF9A-EADC42DA5F15.mov"
+V4="$UP/f50b82d3-copy_98C6F834-6AE7-4F01-9853-0A148F1327D4.mov"   # opening title clip (no voice-over)
 
 # 1. frames
 i=1
-for f in "$V1" "$V2" "$V3"; do
+for f in "$V1" "$V2" "$V3" "$V4"; do
   mkdir -p "$WORK/clips/v$i"
   [ -f "$WORK/clips/v$i/00001.jpg" ] || ffmpeg -v error -y -i "$f" -vf fps=30 -q:v 2 "$WORK/clips/v$i/%05d.jpg"
   ffmpeg -v error -y -i "$f" -vn -ac 1 -ar 16000 "$WORK/audio/v$i.wav"

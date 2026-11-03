@@ -1,13 +1,13 @@
 # Whimsical art journey vlog editor
 
 Builds **"Episode : First video of my hand-painted mirror"**, a 9:16 mini vlog (59.5 s, 1080x1920, 30 fps)
-from the 3 raw phone clips and 10 photos of finished hand-painted mirrors.
+from the 3 raw phone clips with voice-over, a short opening clip, and 10 photos of finished hand-painted mirrors.
 
 ## What the edit does
 
 | time | section | what you see |
 |---|---|---|
-| 0.0–3.7 | title | Reference-2 style title held over a beat-synced montage (her with the blank mirror, studio, finished mirrors): `[episode 01]` serif label, a tight bold stack alternating pink and soft yellow *first video / of my / hand-painted / mirror ☆*, `mirror diaries no. 1 [a whimsical art journey]`, a dark `ep. 01 art journey` tag, cut-out stickers and chrome stars. The stickers cut away at 2.5 s and the title at 3.4 s. The ep. 01 tag only appears here. |
+| 0.0–3.7 | title | Reference-2 style title held over a beat-synced montage: the opening clip of her stepping back with the blank mirror outdoors, the studio, finished mirrors, then back to the opening clip: `[episode 01]` serif label, a tight bold stack alternating pink and soft yellow *first video / of my / hand-painted / mirror ☆*, `mirror diaries no. 1 [a whimsical art journey]`, a dark `ep. 01 art journey` tag, cut-out stickers and chrome stars. The stickers cut away at 2.5 s and the title at 3.4 s. The ep. 01 tag only appears here. |
 | 3.7–15.0 | unboxing | Box-cutting and frame footage with captions, `(yet!)` doodle, mirror + brush stickers on "vlog mirror painting", paint splats, a heart doodle |
 | 15.0–18.9 | "my creative journey" | Polaroids of past mirrors drop in with washi tape (camera-shutter flash) over a blurred background |
 | 18.9–22.4 | intro | "oops!" on *lupa nak cakap*, then a close-up of her face with the name tag |

@@ -51,11 +51,11 @@ TOTAL = 59.5
 SEGS = [
     # title over a beat-synced montage (reference-2 style); cuts land on the music beats (0.6 s)
     dict(name="title", kind="montage", t0=0.0, t1=3.70, shots=[
-        dict(a0=0.0, a1=0.7, photo="title", zoom=(1.30, 1.36), focus=(0.42, 0.33)),
-        dict(a0=0.7, a1=1.3, clip=3, a=0.30, b=0.90, zoom=(1.08, 1.12)),
-        dict(a0=1.3, a1=1.9, photo=2, zoom=(1.05, 1.12), focus=(0.5, 0.42)),
-        dict(a0=1.9, a1=2.5, photo=6, zoom=(1.12, 1.05), focus=(0.5, 0.45)),
-        dict(a0=2.5, a1=3.7, photo="title", zoom=(1.42, 1.52), focus=(0.40, 0.35)),
+        # opening clip (v4): her stepping back with the blank mirror outdoors
+        dict(a0=0.0, a1=1.9, clip=4, a=0.0, b=1.9, zoom=(1.14, 1.16), dy=110),
+        dict(a0=1.9, a1=2.5, clip=3, a=0.30, b=0.90, zoom=(1.08, 1.12)),
+        dict(a0=2.5, a1=3.1, photo=2, zoom=(1.05, 1.12), focus=(0.5, 0.42)),
+        dict(a0=3.1, a1=3.7, clip=4, a=1.95, b=2.55, zoom=(1.14, 1.16), dy=110),
     ]),
     dict(name="cut_box", kind="clip", t0=3.70, t1=8.40, src=1, a=1.50, b=6.20, zoom=(1.06, 1.0)),
     dict(name="mirror_box", kind="clip", t0=8.40, t1=11.40, src=1, a=6.20, b=11.00, zoom=(1.0, 1.08)),
@@ -258,7 +258,7 @@ class Assets:
         shd = [(4, 9, 0.42), (2, 2, 0.26)]
         self.t2_label = S(T.tracked("[episode 01]", T.font("LiberationSerif-Regular.ttf", 72), TY, -3, shd))
         lines = ["first video", "of my", "hand-painted", "mirror"]
-        size = 150
+        size = 132
         while True:
             fb = T.font("InterDisplay-Bold.otf", size)
             tr = -0.075 * size
@@ -306,7 +306,7 @@ class Assets:
         self.chrome = [S(st.chrome_star(sz)) for sz in (58, 70, 50, 64)]
         self.mini_pola = S(st.polaroid(self.photo[9], 190, ratio=1.2))
         # layout: everything centred on x=540
-        self.t2_y = {"label": 248, "big_top": 282}
+        self.t2_y = {"label": 168, "big_top": 198}
         self.t2_y["sub"] = self.t2_y["big_top"] + bh - 6 + sub.height // 2
         self.t2_y["tag"] = self.t2_y["sub"] + sub.height // 2 + 34
         g = np.zeros((780, W, 4), np.uint8)
@@ -517,7 +517,7 @@ class Renderer:
         cue(0.02, "chime", 0.8)
         for i, t in enumerate((0.04, 0.10, 0.16, 0.22, 0.28)):
             cue(t, "pop_hi" if i % 2 else "pop", 0.45)
-        for t in (0.7, 1.3, 1.9, 2.5):
+        for t in (1.9, 2.5, 3.1):
             cue(t - 0.04, "whoosh", 0.35)
         for t, (kind, _) in TRANS.items():
             if kind == "glint":
@@ -583,7 +583,7 @@ class Renderer:
             z = shot["zoom"][0] + (shot["zoom"][1] - shot["zoom"][0]) * q
             if "clip" in shot:
                 fr = self.clips.frame(shot["clip"], shot["a"] + (shot["b"] - shot["a"]) * q)
-                return fx.camera(fr, z)
+                return fx.camera(fr, z, 0.0, shot.get("dy", 0.0))
             return fx.cover_np(self.A.photo_np[shot["photo"]], z, *shot["focus"])
         if s["kind"] == "photo":
             z0, z1 = s["zoom"]
@@ -716,8 +716,8 @@ class Renderer:
             ]
             for i, (spr, x, yy, r, t0, sc) in enumerate(stk):
                 blit(fr, spr, x, yy + bob(t, i, 3), scale=sc * ease_out_back(clamp01((t - t0) / 0.22), 2.0), rot=r + wobble(t, i, 2))
-            for i, (x, yy, t0) in enumerate([(320, 300, 0.06), (775, 230, 0.1), (210, 1000, 0.14), (870, 735, 0.18),
-                                              (430, 1035, 0.22), (985, 455, 0.26)]):
+            for i, (x, yy, t0) in enumerate([(320, 300, 0.06), (775, 230, 0.1), (60, 1180, 0.14), (870, 735, 0.18),
+                                              (1010, 1080, 0.22), (985, 455, 0.26)]):
                 blit(fr, A.chrome[i % 4], x, yy, scale=ease_out_back(clamp01((t - t0) / 0.2), 2.0), rot=t * 40 + i * 30)
         if t < 3.42:
             a = clamp01(t / 0.08)
