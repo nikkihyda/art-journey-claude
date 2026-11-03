@@ -7,8 +7,8 @@ from the 3 raw phone clips and 10 photos of finished hand-painted mirrors.
 
 | time | section | what you see |
 |---|---|---|
-| 0.0–3.7 | title | Photo of the artist holding a blank mirror. The title is styled after reference 3: `episode :` (yellow), *first video* (mint italic serif), **of my hand-painted** (pink rounded), *mirror*, `(a whimsical art journey)` written on the blank mirror. Glossy button stickers, a butterfly, a palette and a brush. |
-| 3.7–15.0 | unboxing | Box-cutting and frame footage with captions, `(yet!)` doodle, mirror + brush stickers on "floor mirror painting", paint splats, a heart doodle |
+| 0.0–3.7 | title | Photo of the artist holding a blank mirror. The title is styled after reference 3: `episode :` (yellow), *first video* (periwinkle italic serif), **of my hand-painted** (pink rounded), *mirror*, `(a whimsical art journey)` written on the blank mirror. Glossy button stickers, a butterfly, a palette and a brush. |
+| 3.7–15.0 | unboxing | Box-cutting and frame footage with captions, `(yet!)` doodle, mirror + brush stickers on "mirror painting", paint splats, a heart doodle |
 | 15.0–18.9 | "my creative journey" | Polaroids of past mirrors drop in with washi tape (camera-shutter flash) over a blurred background |
 | 18.9–22.4 | intro | "oops!" on *lupa nak cakap*, then a close-up of her face with the name tag |
 | 22.4–24.3 | sneak peek | Finished mirrors shown fast inside arched gold mirror frames |
@@ -16,7 +16,8 @@ from the 3 raw phone clips and 10 photos of finished hand-painted mirrors.
 | 43.7–53.9 | outro talk | "episode 02 ???", then a mirror-selfie photo with "rajin mode: on" |
 | 53.9–59.5 | end card | Arched photo collage, "see you in episode 02", "follow for more mirror magic" |
 
-Transitions: mirror-shine glint sweeps, painterly brush-stroke wipes (pink / butter / mint) and zoom punches.
+Transitions: mirror-shine glint sweeps, painterly brush-stroke wipes (pink / butter / lavender) and zoom punches.
+Accent colours: pink, butter yellow, periwinkle blue and lavender purple (no green/mint).
 Grade: lifted pastel blacks, warm pink highlights, soft bloom, pink vignette, light leaks, fine grain.
 Captions follow the voice-over in the reference-2 style: lowercase white Inter Display SemiBold, tight tracking, soft shadow, no outline, 2-4 word chunks.
 

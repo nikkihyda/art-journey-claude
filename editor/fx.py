@@ -226,7 +226,7 @@ def light_leak(dst, t, opacity=0.20, seed=0):
     sw, sh = 90, 160
     yy, xx = np.mgrid[0:sh, 0:sw].astype(np.float32)
     layer = np.zeros((sh, sw, 3), np.float32)
-    blobs = [((255, 140, 190), 0.13, 0.9), ((255, 220, 120), 0.09, 1.3), ((170, 240, 200), 0.07, 0.7)]
+    blobs = [((255, 140, 190), 0.13, 0.9), ((255, 220, 120), 0.09, 1.3), ((190, 178, 255), 0.07, 0.7)]
     for i, (col, sp, rad) in enumerate(blobs):
         ph = seed * 1.7 + i * 2.1
         bx = (0.5 + 0.6 * math.sin(t * sp * 2 * math.pi * 0.5 + ph)) * sw

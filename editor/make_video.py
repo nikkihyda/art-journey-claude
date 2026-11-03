@@ -82,7 +82,7 @@ TRANS = {
     22.37: ("brush", st.BUTTER),
     24.30: ("glint", None),
     27.60: ("punch", None),
-    29.60: ("brush", st.MINT),
+    29.60: ("brush", st.LAVENDER),
     32.20: ("punch", None),
     33.70: ("glint", None),
     36.40: ("punch", None),
@@ -104,7 +104,7 @@ CHUNKS = [
     (1, "my first episode", 3, 5, "n", ["first", "episode"]),
     (1, "hmm, i'm not famous", 6, 9, "n", ["famous"]),
     (1, "but i still nak buat", 10, 14, "n", []),
-    (1, "floor mirror painting", 15, 17, "big", []),
+    (1, "mirror painting", 15, 17, "big", []),
     (1, "because i think", 18, 20, "n", []),
     (1, "it's time to create", 21, 24, "n", ["create"]),
     (1, "something for my own", 25, 28, "n", ["own"]),
@@ -145,7 +145,6 @@ CAP_Y = {  # per segment overrides
 }
 
 INK = (95, 52, 82)          # deep plum for text on light backgrounds
-TEAL = (52, 140, 120)
 HOT = st.HOTPINK
 
 CUES = []  # (time, sfx name, gain)
@@ -222,7 +221,7 @@ class Assets:
         # stickers
         self.btn_pink = S(st.button_flower(130, st.PINK))
         self.btn_star = S(st.button_star(120))
-        self.btn_mint = S(st.button_flower(115, st.MINT, dots=True, holes=4))
+        self.btn_mint = S(st.button_flower(115, st.LAVENDER, dots=True, holes=4))
         self.btn_round = S(st.button_round(90, st.BUTTER))
         self.btn_pink_s = S(st.button_flower(64, st.PINK))
         self.sparkle = S(st.sparkle(110))
@@ -233,28 +232,28 @@ class Assets:
         self.daisy = S(st.daisy(120))
         self.tulip = S(st.tulip(100, st.PINK))
         self.butterfly = S(st.butterfly(120))
-        self.butterfly2 = S(st.butterfly(100, st.MINT, st.PINK))
+        self.butterfly2 = S(st.butterfly(100, st.SKYBLUE, st.PINK))
         self.palette = S(st.palette(230))
         self.palette_s = S(st.palette(170))
-        self.brush = S(st.brush(230, st.HOTPINK, st.MINT))
+        self.brush = S(st.brush(230, st.HOTPINK, st.LAVENDER))
         self.brush2 = S(st.brush(200, st.YELLOW, st.PINK))
         self.mirror = S(st.mirror_icon(120))
         self.mirror_oval = S(st.mirror_icon(110, shape="oval"))
         self.bow = S(st.bow(130))
-        self.splats = [S(st.paint_splat(150, c, i)) for i, c in enumerate([st.PINK, st.BUTTER, st.MINT, st.LILAC])]
-        self.washi = [S(st.washi(180, 50, st.MINT, "dots", seed=1)), S(st.washi(180, 50, st.PINK, "stripes", seed=2)),
+        self.splats = [S(st.paint_splat(150, c, i)) for i, c in enumerate([st.PINK, st.BUTTER, st.SKYBLUE, st.LAVENDER])]
+        self.washi = [S(st.washi(180, 50, st.SKYBLUE, "dots", seed=1)), S(st.washi(180, 50, st.PINK, "stripes", seed=2)),
                       S(st.washi(180, 50, st.BUTTER, "grid", seed=3))]
 
         # title texts
         self.t_ep = S(T.render("episode :", T.QUICKSAND(62, 650), st.BUTTER,
                                shadow=(0, 4, 5, (70, 40, 90, 170))))
-        self.t_first = S(T.render("first video", T.FRAUNCES(168, 430), st.MINT, stroke=4, stroke_fill=(62, 150, 128),
+        self.t_first = S(T.render("first video", T.FRAUNCES(168, 430), st.PERI, stroke=4, stroke_fill=st.INDIGO,
                                   glow=16, glow_color=(255, 255, 255), glow_strength=0.75,
                                   shadow=(0, 7, 10, (30, 50, 80, 130))))
         self.t_line3 = S(T.render("of my hand-painted", T.FREDOKA(94, 650), (248, 178, 228), stroke=5,
                                   stroke_fill=(214, 96, 176), glow=12, glow_color=(255, 255, 255), glow_strength=0.8,
                                   shadow=(0, 6, 8, (60, 30, 70, 120))))
-        self.t_mirror = S(T.render("mirror", T.FRAUNCES(172, 430), st.MINT, stroke=4, stroke_fill=(62, 150, 128),
+        self.t_mirror = S(T.render("mirror", T.FRAUNCES(172, 430), st.LAVENDER, stroke=4, stroke_fill=st.PLUM,
                                    glow=16, glow_color=(255, 255, 255), glow_strength=0.75,
                                    shadow=(0, 7, 10, (30, 50, 80, 130))))
         self.t_sub1 = S(T.render("(a whimsical", T.QUICKSAND(50, 600), st.BUTTER, shadow=(0, 3, 4, (0, 0, 0, 160))))
@@ -278,7 +277,7 @@ class Assets:
 
         # name tag
         self.t_hi = S(T.render("hi, i'm", T.QUICKSAND(66, 650), st.BUTTER, shadow=(0, 4, 6, (60, 30, 70, 170))))
-        self.t_name = S(T.render("vicky", T.FRAUNCES(200, 430), st.MINT, stroke=4, stroke_fill=(62, 150, 128),
+        self.t_name = S(T.render("vicky", T.FRAUNCES(200, 430), st.PERI, stroke=4, stroke_fill=st.INDIGO,
                                  glow=18, glow_color=(255, 255, 255), glow_strength=0.8,
                                  shadow=(0, 8, 12, (30, 50, 80, 140))))
         self.t_role = S(T.render("the mirror painter", T.FREDOKA(64, 620), (248, 178, 228), stroke=4,
@@ -287,7 +286,7 @@ class Assets:
         # portfolio
         self.port_head = S(T.render("sneak peek", T.FREDOKA(96, 650), (248, 178, 228), stroke=5, stroke_fill=(214, 96, 176),
                                     glow=12, glow_color=(255, 255, 255), glow_strength=0.85, shadow=(0, 6, 8, (60, 30, 70, 120))))
-        self.port_head2 = S(T.render("my works", T.FRAUNCES(130, 430), st.MINT, stroke=4, stroke_fill=(62, 150, 128),
+        self.port_head2 = S(T.render("my works", T.FRAUNCES(130, 430), st.LAVENDER, stroke=4, stroke_fill=st.PLUM,
                                      glow=14, glow_color=(255, 255, 255), glow_strength=0.8, shadow=(0, 6, 8, (30, 50, 80, 120))))
         self.arches = {}
         for k in (9, 5, 3, 2):
@@ -316,9 +315,9 @@ class Assets:
         self.l_shapes = [hand("arch", 52), hand("oval", 52), hand("round", 52), hand("tall", 52)]
         self.l_fight = S(st.pill(T.render("fighting!", T.FREDOKA(64, 650), (255, 255, 255)), fill=st.HOTPINK, pad=(30, 14)))
         self.l_follow = S(st.pill(T.render("+ follow", T.FREDOKA(66, 650), (255, 255, 255)), fill=st.HOTPINK, pad=(40, 16)))
-        self.l_following = S(st.pill(T.render("following", T.FREDOKA(66, 650), TEAL), fill=st.MINT, pad=(40, 16)))
+        self.l_following = S(st.pill(T.render("following", T.FREDOKA(66, 650), (255, 255, 255)), fill=(150, 140, 240), pad=(40, 16)))
         self.l_like = hand("+1 like", 72, st.BUTTER)
-        self.l_ep2 = S(T.render("episode 02", T.FRAUNCES(140, 430), st.MINT, stroke=4, stroke_fill=(62, 150, 128),
+        self.l_ep2 = S(T.render("episode 02", T.FRAUNCES(140, 430), st.PERI, stroke=4, stroke_fill=st.INDIGO,
                                 glow=14, glow_color=(255, 255, 255), glow_strength=0.8, shadow=(0, 6, 8, (30, 50, 80, 140))))
         self.l_q = S(T.render("?", T.FREDOKA(130, 700), st.BUTTER, stroke=6, stroke_fill=st.HOTPINK))
         self.l_rajin = S(st.pill(T.render("rajin mode: on", T.FREDOKA(58, 650), INK), fill=st.BUTTER, pad=(30, 14)))
@@ -333,14 +332,14 @@ class Assets:
         bgu = np.clip(bg, 0, 255).astype(np.uint8)
         for y in range(40, H, 90):
             for x in range(40 + (45 if (y // 90) % 2 else 0), W, 90):
-                cv2.circle(bgu, (x, y), 7, (196, 238, 214), -1, cv2.LINE_AA)
+                cv2.circle(bgu, (x, y), 7, (214, 204, 255), -1, cv2.LINE_AA)
         self.end_bg = bgu
         self.e_see = S(T.render("see you in", T.QUICKSAND(70, 700), HOT))
-        self.e_ep = S(T.render("episode 02", T.FRAUNCES(176, 430), st.MINT, stroke=5, stroke_fill=(62, 150, 128),
+        self.e_ep = S(T.render("episode 02", T.FRAUNCES(176, 430), st.PERI, stroke=5, stroke_fill=st.INDIGO,
                                glow=12, glow_color=(255, 255, 255), glow_strength=0.9, shadow=(0, 7, 10, (90, 60, 90, 90))))
         self.e_follow = S(T.render("follow for more", T.FREDOKA(76, 650), (248, 178, 228), stroke=5, stroke_fill=(214, 96, 176),
                                    glow=8, glow_color=(255, 255, 255), glow_strength=0.9))
-        self.e_magic = S(T.render("mirror magic", T.FRAUNCES(128, 430), st.MINT, stroke=4, stroke_fill=(62, 150, 128),
+        self.e_magic = S(T.render("mirror magic", T.FRAUNCES(128, 430), st.LAVENDER, stroke=4, stroke_fill=st.PLUM,
                                   glow=10, glow_color=(255, 255, 255), glow_strength=0.9, shadow=(0, 6, 8, (90, 60, 90, 90))))
         self.e_thanks = S(T.render("thank you for watching", T.HAND(64), INK))
         self.e_arch_c = S(st.arch_frame_photo(self.photo[3], 430, 700, focus=(0.22, 0.42)))
@@ -748,7 +747,7 @@ class Renderer:
         shapes = [
             (fx.arch_path(170, 270, 150, 260), st.PINK, A.l_shapes[0], 170),
             (fx.ellipse_path(410, 400, 80, 130), st.BUTTER, A.l_shapes[1], 410),
-            (fx.ellipse_path(650, 400, 110, 110), st.MINT, A.l_shapes[2], 650),
+            (fx.ellipse_path(650, 400, 110, 110), st.SKYBLUE, A.l_shapes[2], 650),
             (fx.rect_path(890, 400, 130, 260), st.LILAC, A.l_shapes[3], 890),
         ]
         for i, (pts, col, lab, lx) in enumerate(shapes):

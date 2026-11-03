@@ -23,6 +23,11 @@ CREAM = (255, 249, 238)
 GOLD = (226, 178, 74)
 SKY = (170, 214, 245)
 WHITE = (255, 255, 255)
+PERI = (176, 190, 255)      # periwinkle blue
+LAVENDER = (206, 180, 255)  # soft purple
+SKYBLUE = (156, 204, 255)
+INDIGO = (88, 96, 196)      # outline for blue text
+PLUM = (124, 82, 190)       # outline for purple text
 
 SS = 3  # supersampling factor
 
@@ -290,7 +295,7 @@ def palette(size=200):
     m = m.filter(ImageFilter.GaussianBlur(SS)).point(lambda v: 255 if v > 128 else 0)
     img = _shade_glossy(m, (250, 236, 214), depth=0.04, gloss=0.35)
     d = ImageDraw.Draw(img)
-    blobs = [((0.30, 0.18), HOTPINK), ((0.50, 0.12), YELLOW), ((0.70, 0.20), GREEN),
+    blobs = [((0.30, 0.18), HOTPINK), ((0.50, 0.12), YELLOW), ((0.70, 0.20), (120, 150, 255)),
              ((0.82, 0.38), SKY), ((0.48, 0.34), LILAC), ((0.20, 0.32), (255, 160, 120))]
     rnd = random.Random(3)
     for (fx, fy), col in blobs:
