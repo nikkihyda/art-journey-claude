@@ -7,7 +7,7 @@ from the 3 raw phone clips and 10 photos of finished hand-painted mirrors.
 
 | time | section | what you see |
 |---|---|---|
-| 0.0–3.7 | title | Photo of the artist holding a blank mirror. The title is styled after reference 3: `episode :` (yellow), *first video* (periwinkle italic serif), **of my hand-painted** (pink rounded), *mirror*, `(a whimsical art journey)` written on the blank mirror. Glossy button stickers, a butterfly, a palette and a brush. |
+| 0.0–3.7 | title | Reference-2 style title held over a beat-synced montage (her with the blank mirror, studio, finished mirrors): `[episode 01]` serif label, a tight bold pink stack *first video / of my / hand-painted / mirror ☆*, `mirror diaries no. 1 [a whimsical art journey]`, a dark `ep. 01 art journey` tag, cut-out stickers and chrome stars. The stickers cut away at 2.5 s and the title at 3.4 s. The ep. 01 tag only appears here. |
 | 3.7–15.0 | unboxing | Box-cutting and frame footage with captions, `(yet!)` doodle, mirror + brush stickers on "mirror painting", paint splats, a heart doodle |
 | 15.0–18.9 | "my creative journey" | Polaroids of past mirrors drop in with washi tape (camera-shutter flash) over a blurred background |
 | 18.9–22.4 | intro | "oops!" on *lupa nak cakap*, then a close-up of her face with the name tag |
@@ -34,7 +34,7 @@ shutter, boing, ding) are generated in code. The final mix is loudness-normalise
 - `audio.py`: music, SFX and voice-over mix
 - `mux.py`: two-pass loudnorm and mux
 - `transcript.json`: word-level timestamps of the voice-over (faster-whisper large-v3)
-- `fonts/`: Fraunces, Fredoka, Quicksand, Gaegu, Inter Display (all SIL OFL)
+- `fonts/`: Inter Display, Liberation Serif, Fraunces, Fredoka, Quicksand, Gaegu (all SIL OFL)
 
 ## Rebuild
 

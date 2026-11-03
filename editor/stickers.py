@@ -547,3 +547,28 @@ def cloud(size=220, color=WHITE):
     m = m.filter(ImageFilter.GaussianBlur(SS))
     img = _shade_glossy(m, color, depth=0.03, gloss=0.1)
     return sticker_finish(_down(img, (size, int(size * 0.6))), border=0, shadow=0.15)
+
+
+def chrome_star(size=80):
+    """Glossy silver 3D star (like the chrome stars in reference 2)."""
+    S = size * SS
+    m = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(m).polygon(_star_points(S / 2, S * 0.53, S * 0.47, S * 0.20), fill=255)
+    m = m.filter(ImageFilter.GaussianBlur(S * 0.02)).point(lambda v: 255 if v > 110 else 0).filter(ImageFilter.GaussianBlur(1.2))
+    img = _shade_glossy(m, (206, 210, 222), depth=0.09, gloss=0.95)
+    # cool chrome reflections
+    arr = np.asarray(img).astype(np.float32)
+    yy = np.linspace(0, 1, S)[:, None]
+    band = 0.75 + 0.35 * np.sin(yy * 9.0 + 1.0)
+    arr[..., :3] = np.clip(arr[..., :3] * band[..., None] * np.array([0.97, 0.99, 1.04]), 0, 255)
+    img = Image.fromarray(arr.astype(np.uint8))
+    return sticker_finish(_down(img, (size, size)), border=0, shadow=0.28, shadow_off=(2, 4), shadow_blur=4)
+
+
+def outline_star(size=120, color=(255, 130, 205), width=9):
+    """Hollow star like the one after 'life' in reference 2."""
+    S = size * SS
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    pts = _star_points(S / 2, S * 0.53, S * 0.46, S * 0.19)
+    ImageDraw.Draw(img).line(pts + [pts[0]], fill=color + (255,), width=width * SS, joint="curve")
+    return _down(img, (size, size))

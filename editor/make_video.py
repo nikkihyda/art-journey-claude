@@ -49,7 +49,14 @@ TOTAL = 59.5
 # Timeline: visual segments (global seconds)
 # --------------------------------------------------------------------------------------------
 SEGS = [
-    dict(name="title", kind="title", t0=0.0, t1=3.70),
+    # title over a beat-synced montage (reference-2 style); cuts land on the music beats (0.6 s)
+    dict(name="title", kind="montage", t0=0.0, t1=3.70, shots=[
+        dict(a0=0.0, a1=0.7, photo="title", zoom=(1.30, 1.36), focus=(0.42, 0.33)),
+        dict(a0=0.7, a1=1.3, clip=3, a=0.30, b=0.90, zoom=(1.08, 1.12)),
+        dict(a0=1.3, a1=1.9, photo=2, zoom=(1.05, 1.12), focus=(0.5, 0.42)),
+        dict(a0=1.9, a1=2.5, photo=6, zoom=(1.12, 1.05), focus=(0.5, 0.45)),
+        dict(a0=2.5, a1=3.7, photo="title", zoom=(1.42, 1.52), focus=(0.40, 0.35)),
+    ]),
     dict(name="cut_box", kind="clip", t0=3.70, t1=8.40, src=1, a=1.50, b=6.20, zoom=(1.06, 1.0)),
     dict(name="mirror_box", kind="clip", t0=8.40, t1=11.40, src=1, a=6.20, b=11.00, zoom=(1.0, 1.08)),
     dict(name="frame_pull", kind="clip", t0=11.40, t1=15.00, src=1, a=11.00, b=15.40, zoom=(1.08, 1.0)),
@@ -244,20 +251,62 @@ class Assets:
         self.washi = [S(st.washi(180, 50, st.SKYBLUE, "dots", seed=1)), S(st.washi(180, 50, st.PINK, "stripes", seed=2)),
                       S(st.washi(180, 50, st.BUTTER, "grid", seed=3))]
 
-        # title texts
-        self.t_ep = S(T.render("episode :", T.QUICKSAND(62, 650), st.BUTTER,
-                               shadow=(0, 4, 5, (70, 40, 90, 170))))
-        self.t_first = S(T.render("first video", T.FRAUNCES(168, 430), st.PERI, stroke=4, stroke_fill=st.INDIGO,
-                                  glow=16, glow_color=(255, 255, 255), glow_strength=0.75,
-                                  shadow=(0, 7, 10, (30, 50, 80, 130))))
-        self.t_line3 = S(T.render("of my hand-painted", T.FREDOKA(94, 650), (248, 178, 228), stroke=5,
-                                  stroke_fill=(214, 96, 176), glow=12, glow_color=(255, 255, 255), glow_strength=0.8,
-                                  shadow=(0, 6, 8, (60, 30, 70, 120))))
-        self.t_mirror = S(T.render("mirror", T.FRAUNCES(172, 430), st.LAVENDER, stroke=4, stroke_fill=st.PLUM,
-                                   glow=16, glow_color=(255, 255, 255), glow_strength=0.75,
-                                   shadow=(0, 7, 10, (30, 50, 80, 130))))
-        self.t_sub1 = S(T.render("(a whimsical", T.QUICKSAND(50, 600), st.BUTTER, shadow=(0, 3, 4, (0, 0, 0, 160))))
-        self.t_sub2 = S(T.render("art journey)", T.QUICKSAND(50, 600), st.BUTTER, shadow=(0, 3, 4, (0, 0, 0, 160))))
+        # title (reference-2 style): pink bold tight sans stack, serif label in brackets,
+        # small subtitle, dark "ep. 01" tag, cut-out stickers and chrome stars around it
+        TP = (255, 130, 205)
+        shd = [(4, 9, 0.38), (2, 2, 0.22)]
+        self.t2_label = S(T.tracked("[episode 01]", T.font("LiberationSerif-Regular.ttf", 72), TP, -3, shd))
+        lines = ["first video", "of my", "hand-painted", "mirror"]
+        size = 150
+        while True:
+            fb = T.font("InterDisplay-Bold.otf", size)
+            tr = -0.075 * size
+            if max(fb.getlength(l) + tr * (len(l) - 1) for l in lines) <= 880 or size <= 90:
+                break
+            size -= 4
+        imgs = [T.tracked(l, fb, TP, tr, shd) for l in lines]
+        star = st.outline_star(int(size * 0.80), TP, width=max(6, size // 15))
+        step = int(size * 0.84)
+        bw = max(max(im.width for im in imgs), imgs[-1].width - 24 + star.width)
+        bh = imgs[0].height + step * (len(imgs) - 1)
+        big = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+        for i, im in enumerate(imgs):
+            big.alpha_composite(im, (0, i * step))
+        big.alpha_composite(star, (imgs[-1].width - 30, (len(imgs) - 1) * step + (imgs[-1].height - star.height) // 2 + 4))
+        self.t2_big = S(big)
+        fs = T.font("InterDisplay-Bold.otf", 42)
+        shd2 = [(3, 6, 0.65), (1, 1.5, 0.45)]
+        sub1 = T.tracked("mirror diaries no. 1", fs, TP, -1.4, shd2)
+        sub2 = T.tracked("[a whimsical art journey]", fs, TP, -1.4, shd2)
+        sub = Image.new("RGBA", (max(sub1.width, sub2.width), sub1.height + 46), (0, 0, 0, 0))
+        sub.alpha_composite(sub1, ((sub.width - sub1.width) // 2, 0))
+        sub.alpha_composite(sub2, ((sub.width - sub2.width) // 2, 46))
+        self.t2_sub = S(sub)
+        # dark tag: (smiley) ep. 01  art journey  (arrow)
+        tf = T.font("InterDisplay-SemiBold.otf", 34 * 2)
+        txt = "ep. 01   art journey"
+        tw2 = int(tf.getlength(txt))
+        hh = 64 * 2
+        lab = Image.new("RGBA", (tw2 + 64 * 2 + 70 * 2, hh), (0, 0, 0, 0))
+        dl = ImageDraw.Draw(lab)
+        dl.rectangle([0, 0, lab.width - 1, hh - 1], fill=(26, 22, 30, 240))
+        dl.text((26, (hh - 34 * 2) // 2 - 10), txt, font=tf, fill=(255, 255, 255, 255))
+        cx, cy, r = tw2 + 26 + 50, hh // 2, 22
+        dl.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(120, 136, 255, 255))
+        dl.ellipse([cx - 9, cy - 8, cx - 4, cy - 2], fill=(255, 255, 255, 255))
+        dl.ellipse([cx + 4, cy - 8, cx + 9, cy - 2], fill=(255, 255, 255, 255))
+        dl.arc([cx - 12, cy - 8, cx + 12, cy + 13], 20, 160, fill=(255, 255, 255, 255), width=4)
+        ax = cx + 52
+        dl.line([(ax - 16, cy - 16), (ax + 14, cy + 14)], fill=(255, 255, 255, 255), width=7)
+        dl.line([(ax + 14, cy - 6), (ax + 14, cy + 14), (ax - 6, cy + 14)], fill=(255, 255, 255, 255), width=7)
+        lab = lab.resize((lab.width // 2, hh // 2), Image.LANCZOS)
+        self.t2_tag = S(st.sticker_finish(lab, border=0, shadow=0.3, shadow_off=(2, 4), shadow_blur=5))
+        self.chrome = [S(st.chrome_star(sz)) for sz in (58, 70, 50, 64)]
+        self.mini_pola = S(st.polaroid(self.photo[9], 190, ratio=1.2))
+        # layout: everything centred on x=540
+        self.t2_y = {"label": 248, "big_top": 282}
+        self.t2_y["sub"] = self.t2_y["big_top"] + bh - 6 + sub.height // 2
+        self.t2_y["tag"] = self.t2_y["sub"] + sub.height // 2 + 34
         g = np.zeros((780, W, 4), np.uint8)
         a = (np.linspace(1, 0, 780) ** 1.4 * 120).astype(np.uint8)
         g[..., 0], g[..., 1], g[..., 2] = 70, 50, 120
@@ -267,13 +316,6 @@ class Assets:
         gb[..., 0], gb[..., 1], gb[..., 2] = 60, 30, 70
         gb[..., 3] = (np.linspace(0, 1, 900) ** 1.2 * 205).astype(np.uint8)[:, None]
         self.bottom_shade = gb
-
-        # ep tag
-        tag_txt = T.render("ep.01  art journey", T.QUICKSAND(34, 700), INK)
-        tag = Image.new("RGBA", (tag_txt.width + 58, tag_txt.height), (0, 0, 0, 0))
-        tag.alpha_composite(st.button_flower(44, st.PINK).resize((44, 44)), (0, max(0, (tag_txt.height - 44) // 2)))
-        tag.alpha_composite(tag_txt, (54, 0))
-        self.tag = S(st.pill(tag, fill=(255, 246, 236), pad=(20, 10)))
 
         # name tag
         self.t_hi = S(T.render("hi, i'm", T.QUICKSAND(66, 650), st.BUTTER, shadow=(0, 4, 6, (60, 30, 70, 170))))
@@ -473,10 +515,11 @@ class Renderer:
 
     # ---------------- cues for the audio mix
     def _register_cues(self):
-        cue(0.05, "chime", 0.8)
-        for t in (0.35, 0.65, 1.15, 1.55, 2.0):
-            cue(t, "pop", 0.7)
-        cue(0.9, "pop_hi", 0.5); cue(1.3, "pop_hi", 0.5); cue(1.75, "pop_hi", 0.5); cue(2.2, "pop", 0.5); cue(2.4, "pop", 0.5)
+        cue(0.02, "chime", 0.8)
+        for i, t in enumerate((0.04, 0.10, 0.16, 0.22, 0.28)):
+            cue(t, "pop_hi" if i % 2 else "pop", 0.45)
+        for t in (0.7, 1.3, 1.9, 2.5):
+            cue(t - 0.04, "whoosh", 0.35)
         for t, (kind, _) in TRANS.items():
             if kind == "glint":
                 cue(t - 0.12, "sparkle", 0.8)
@@ -531,9 +574,18 @@ class Renderer:
                 dy = 5 * math.sin(t * 43)
                 rot = 0.5 * math.sin(t * 29)
             return fx.camera(fr, z, dx, dy, rot)
-        if s["kind"] == "title":
-            z = 1.13 - 0.10 * ease_out_cubic(p)
-            return fx.cover_np(self.A.photo_np["title"], z, 0.5, 0.42)
+        if s["kind"] == "montage":
+            shot = s["shots"][-1]
+            for sh in s["shots"]:
+                if sh["a0"] <= lt < sh["a1"]:
+                    shot = sh
+                    break
+            q = clamp01((lt - shot["a0"]) / (shot["a1"] - shot["a0"]))
+            z = shot["zoom"][0] + (shot["zoom"][1] - shot["zoom"][0]) * q
+            if "clip" in shot:
+                fr = self.clips.frame(shot["clip"], shot["a"] + (shot["b"] - shot["a"]) * q)
+                return fx.camera(fr, z)
+            return fx.cover_np(self.A.photo_np[shot["photo"]], z, *shot["focus"])
         if s["kind"] == "photo":
             z0, z1 = s["zoom"]
             z = z0 + (z1 - z0) * ease_out_cubic(p)
@@ -653,32 +705,28 @@ class Renderer:
             blit(fr, A.sparkle_y, 860, 1080, scale=0.6 * abs(math.sin(t * 4 + 1)), alpha=a)
 
     def title_overlay(self, fr, t):
+        """Reference-2 style title: static pink stack over the montage, stickers cut away at 2.5 s."""
         A = self.A
-        blit(fr, A.top_shade, W / 2, 0, anchor=(0.5, 0.0))
-        # sparkles on the blank mirror
-        for i, (x, y) in enumerate([(612, 705), (870, 1010), (640, 1380), (875, 1700)]):
-            ph = (t * 0.8 + i * 0.31) % 1.0
-            blit(fr, A.sparkle, x, y, scale=math.sin(math.pi * ph) ** 2 * 0.9, rot=ph * 90)
-        # butterfly flying across
-        if t > 0.2:
-            u = clamp01((t - 0.2) / 3.5)
-            bx = -80 + u * 1240
-            by = 900 - 380 * u + 60 * math.sin(u * 7)
-            flap = 0.35 + 0.65 * abs(math.cos(t * 13))
-            blit(fr, A.butterfly, bx, by, scale=0.9, sx=0.9 * flap, rot=-15 + 10 * math.sin(t * 3))
-        blit(fr, A.t_ep, 230 + bob(t, 0, 3), 150, scale=pop(t, 0.35), rot=-5 + wobble(t, 0, 1.5))
-        blit(fr, A.t_first, 520, 285 + bob(t, 1, 4), scale=pop(t, 0.65, 0.36), rot=-3 + wobble(t, 1, 1.2))
-        blit(fr, A.btn_pink, 965, 225 + bob(t, 2), scale=pop(t, 0.9), rot=wobble(t, 2, 8) + 10)
-        blit(fr, A.t_line3, 540, 430 + bob(t, 3, 4), scale=pop(t, 1.15, 0.34), rot=-2 + wobble(t, 3, 1.2))
-        blit(fr, A.btn_star, 78, 420 + bob(t, 4), scale=pop(t, 1.3) * 0.9, rot=wobble(t, 4, 10) - 12)
-        blit(fr, A.t_mirror, 770, 560 + bob(t, 5, 4), scale=pop(t, 1.55, 0.36), rot=-4 + wobble(t, 5, 1.2))
-        blit(fr, A.btn_mint, 470, 590 + bob(t, 6), scale=pop(t, 1.75) * 0.85, rot=wobble(t, 6, 10))
-        a_sub = clamp01((t - 2.0) / 0.3)
-        blit(fr, A.t_sub1, 742, 800 + (1 - ease_out_cubic(a_sub)) * 30, alpha=a_sub, rot=-2)
-        blit(fr, A.t_sub2, 742, 862 + (1 - ease_out_cubic(clamp01((t - 2.12) / 0.3))) * 30,
-             alpha=clamp01((t - 2.12) / 0.3), rot=-2)
-        blit(fr, A.palette, 150, 1720, scale=pop(t, 2.2), rot=-14 + wobble(t, 7, 3))
-        blit(fr, A.brush, 330, 1650, scale=pop(t, 2.4), rot=38 + wobble(t, 8, 3))
+        y = A.t2_y
+        if t < 2.5:
+            stk = [
+                (A.butterfly, 165, 300, -14, 0.04, 1.0), (A.mirror, 925, 300, 9, 0.08, 1.0),
+                (A.palette_s, 92, 735, -12, 0.12, 0.8), (A.brush, 985, 470, 33, 0.16, 0.8),
+                (A.mini_pola, 905, 900, 7, 0.20, 1.0), (A.btn_pink, 150, 905, -8, 0.24, 1.0),
+                (A.bow, 300, 175, 12, 0.28, 0.7),
+            ]
+            for i, (spr, x, yy, r, t0, sc) in enumerate(stk):
+                blit(fr, spr, x, yy + bob(t, i, 3), scale=sc * ease_out_back(clamp01((t - t0) / 0.22), 2.0), rot=r + wobble(t, i, 2))
+            for i, (x, yy, t0) in enumerate([(320, 300, 0.06), (775, 230, 0.1), (210, 1000, 0.14), (870, 735, 0.18),
+                                              (430, 1035, 0.22), (985, 455, 0.26)]):
+                blit(fr, A.chrome[i % 4], x, yy, scale=ease_out_back(clamp01((t - t0) / 0.2), 2.0), rot=t * 40 + i * 30)
+        if t < 3.42:
+            a = clamp01(t / 0.08)
+            sc = 1.03 - 0.03 * ease_out_cubic(t / 0.3)
+            blit(fr, A.t2_label, 540, y["label"], alpha=a, scale=sc)
+            blit(fr, A.t2_big, 540, y["big_top"], alpha=a, scale=sc, anchor=(0.5, 0.0))
+            blit(fr, A.t2_sub, 540, y["sub"], alpha=a, scale=sc)
+            blit(fr, A.t2_tag, 660, y["tag"], alpha=a, scale=sc, rot=-2)
 
     def polaroid_overlay(self, fr, lt, t):
         A = self.A
@@ -866,9 +914,8 @@ class Renderer:
 
     # ---------------- global overlays
     def global_overlay(self, fr, t, s):
-        if 3.75 <= t < 53.6 and s["name"] not in ("portfolio", "hello"):
-            a = fade(t, 3.75, 53.6, 0.4, 0.3)
-            blit(fr, self.A.tag, 40, 150, anchor=(0.0, 0.5), alpha=a, rot=-2)
+        # the "ep. 01" tag now only lives in the title (no persistent badge)
+        return
 
     def render_frame(self, fi):
         t = fi / FPS

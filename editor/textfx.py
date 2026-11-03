@@ -114,3 +114,29 @@ def gradient_text(text, f, top, bottom, stroke=0, stroke_fill=None, **kw):
     a = np.asarray(solid.split()[3])
     fillimg = Image.fromarray(np.dstack([rgb.astype(np.uint8), a]))
     return fillimg
+
+
+def tracked(text, f, fill, tracking=0.0, shadow=None, pad=24):
+    """Single line with custom letter-spacing (kerning kept via prefix widths).
+
+    Keeps the full ascent+descent height (no vertical crop) so stacked lines share a baseline grid.
+    shadow: list of (dy, blur, alpha 0..1) soft shadows in dark plum.
+    """
+    asc, desc = f.getmetrics()
+    tw = int(f.getlength(text) + tracking * max(0, len(text) - 1)) + 2
+    Wd, Hd = tw + pad * 2, asc + desc + pad * 2
+    txt = Image.new("RGBA", (Wd, Hd), (0, 0, 0, 0))
+    d = ImageDraw.Draw(txt)
+    col = fill if len(fill) == 4 else tuple(fill) + (255,)
+    for i, ch in enumerate(text):
+        d.text((pad + f.getlength(text[:i]) + tracking * i, pad), ch, font=f, fill=col)
+    if not shadow:
+        return txt
+    a = np.asarray(txt.split()[3]).astype(np.float32)
+    acc = np.zeros_like(a)
+    for dy, blur, alpha in shadow:
+        sh = cv2.warpAffine(a, np.float32([[1, 0, 0], [0, 1, dy]]), (Wd, Hd))
+        acc += cv2.GaussianBlur(sh, (0, 0), blur) * alpha
+    out = Image.new("RGBA", (Wd, Hd), (40, 14, 34, 0))
+    out.putalpha(Image.fromarray(np.clip(acc, 0, 255).astype(np.uint8)))
+    return Image.alpha_composite(out, txt)
