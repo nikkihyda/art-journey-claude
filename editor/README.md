@@ -1,0 +1,46 @@
+# Whimsical art journey vlog editor
+
+Builds **"Episode : First video of my hand-painted mirror"**, a 9:16 mini vlog (58.4 s, 1080x1920, 30 fps)
+from the 3 raw phone clips with voice-over, a short opening clip, and 10 photos of finished hand-painted mirrors.
+
+## What the edit does
+
+| time | section | what you see |
+|---|---|---|
+| 0.0–3.7 | title | Reference-2 style title held over a beat-synced montage: the opening clip of her stepping back with the blank mirror outdoors, the studio, finished mirrors, then back to the opening clip: `[episode 01]` serif label, a tight bold stack alternating pink and soft yellow *first video / of my / hand-painted / mirror ☆*, `mirror diaries no. 1 [a whimsical art journey]`, a dark `ep. 01 art journey` tag, cut-out stickers and chrome stars. The stickers cut away at 2.5 s and the title at 3.4 s. The ep. 01 tag only appears here. |
+| 3.7–15.0 | unboxing | Box-cutting and frame footage with captions, `(yet!)` doodle, mirror + brush stickers on "vlog mirror painting", paint splats, a heart doodle |
+| 15.0–18.9 | "my creative journey" | Polaroids of past mirrors drop in with washi tape (camera-shutter flash) over a blurred background |
+| 18.9–22.4 | intro | "oops!" on *lupa nak cakap*, then a close-up of her face with the name tag |
+| 22.4–24.3 | sneak peek | Finished mirrors shown fast inside arched gold mirror frames |
+| 24.3–43.7 | studio vlog | Mirror sparkles, "eep!" for *nervous*, arch/oval/round/tall shapes drawn for *banyak cermin*, "fighting!", an animated follow button, a like heart burst |
+| 43.7–53.9 | outro talk | "episode 02 ???", then a mirror-selfie photo with "rajin mode: on" |
+| 53.9–58.4 | outro | No end card. The opening clip plays in reverse (she walks back towards the camera with the blank mirror), then freezes on the mirror. A mirror glint sweeps across it while small white text reads *jadi apa nanti cermin ni?* and then *to be continued...*, before a fade to black. Inspired by reference 1's open-question ending and reference 2's no-end-card ending. |
+
+Transitions: mirror-shine glint sweeps, painterly brush-stroke wipes (pink / butter / lavender) and zoom punches.
+Accent colours: pink, butter yellow, periwinkle blue and lavender purple (no green/mint).
+Colour: no grade or filter. Footage and photos keep their original (raw) colours.
+Captions follow the voice-over in the reference-2 style: lowercase white Inter Display SemiBold, tight tracking, soft shadow, no outline, 2-4 word chunks.
+
+Audio: the original voice-over plus cute SFX generated in code (pops, sparkles, brush swish, shutter, boing, ding, whooshes),
+with no background music. The outro sits on the opening clip's own outdoor ambience. The final mix is loudness-normalised to −14 LUFS.
+`audio.py --music` adds back the original synthesized kalimba + ukulele track.
+
+## Files
+
+- `make_video.py`: the timeline, segments, overlays, captions and renderer
+- `fx.py`: grading, blitting, glint, brush wipe, doodle paths, light leaks
+- `stickers.py`: procedural glossy stickers (flower/star buttons, sparkle, heart, butterfly, palette, brush, mirror, bow, washi tape, polaroid, arched gold frame)
+- `textfx.py`: text rendering with outline, glow and shadow
+- `audio.py`: music, SFX and voice-over mix
+- `mux.py`: two-pass loudnorm and mux
+- `transcript.json`: word-level timestamps of the voice-over (faster-whisper large-v3)
+- `fonts/`: Inter Display, Liberation Serif, Fraunces, Fredoka, Quicksand, Gaegu (all SIL OFL)
+
+## Rebuild
+
+```bash
+pip install numpy pillow opencv-python-headless
+./build.sh /path/to/uploads /path/to/workdir
+```
+
+To change caption wording, edit `CHUNKS` in `make_video.py`. To change the name tag, edit the `niki` text in `Assets`.
